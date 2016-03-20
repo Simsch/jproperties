@@ -1,11 +1,11 @@
 # Description
 jproperties is a super lightweight library to read and write properties from a
-properties file (classpath or external). The Library is using `Optional<>` to
-provide the read values. **You do not have to typecast any of the values after
-reading.**
+properties file (classpath or external where writing to classpath is not possible).
+The Library is using `Optional<>` to provide the read values. You do not have
+to typecast any of the values after reading.
 
 ## Usage (Reading)
-    PropertyFile propertyFile = PropertyFile.createForClasspath("you.properties");
+    PropertyFile propertyFile = PropertyFile.createForClasspath("your.properties");
     JPropertyReader property = JPropertyReader.create(propertyFile);
     Optional<Integer> intValue = property.readInteger("myIntKey");
 
@@ -15,16 +15,15 @@ or in a short way:
 
 ## Usage (Writing)
 Values can be written as single values (key/value) or as a map as a kind of blob.
-After each write process of the properties the properties stream gets closed. (Be
-aware of this if you try to use internal classes directly.)
 
-    PropertyFile propertyFile = PropertyFile.createForClasspath("you.properties");
+    PropertyFile propertyFile = PropertyFile.createForClasspath("your.properties");
     JPropertyWriter property = JPropertyWriter.create(propertyFile);
     property.write("intValue", 123);
+    property.close();
 
 or in a short way:
 
-    JPropertyWriter.create(PropertyFile.createForClasspath("you.properties")).write("intValue", 123);
+    JPropertyWriter.create(PropertyFile.createForClasspath("your.properties")).write("intValue", 123);
 
 ## Supported types
 - Integer `Integer.class`
@@ -32,9 +31,10 @@ or in a short way:
 - Long `Long.class`
 - String `String.class`
 - LocalDateTime `LocalDateTime.class`
+- Objects `Object.class`
 
 # Dependencies
-No dependencies to external libraries. jproperties requires at least **java 8** to work.
+Gson for serialisation of objects to json. jproperties requires at least **java 8** to work.
 
 
 # License (Apache 2.0)
