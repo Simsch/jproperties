@@ -13,10 +13,10 @@ import java.util.Optional;
  */
 public class JPropertyWriter {
 
-    private final CoreWriter writer;
+    private final PropertyFile propertyFile;
 
     private JPropertyWriter(PropertyFile propertyFile) {
-        this.writer = CoreWriter.create(propertyFile.getPath());
+        this.propertyFile = propertyFile;
     }
 
     public static JPropertyWriter create(PropertyFile propertyFile) {
@@ -26,40 +26,41 @@ public class JPropertyWriter {
         return new JPropertyWriter(propertyFile);
     }
 
-    public boolean write(String key, String value) {
+    public JPropertyWriter write(String key, String value) {
         checkKey(key);
-        return writer.writeProperty(key, value);
+        CoreWriter.create(propertyFile.getPath()).writeProperty(key, value);
+        return this;
     }
 
-    public boolean write(String key, LocalDateTime value) {
+    public JPropertyWriter write(String key, LocalDateTime value) {
         checkKey(key);
         DateWrapper dateWrapper = new DateWrapper(Optional.empty());
-        return writer.writeProperty(key, dateWrapper.convertToString(value));
+        CoreWriter.create(propertyFile.getPath()).writeProperty(key, dateWrapper.convertToString(value));
+        return this;
     }
 
-    public <T> boolean write(String key, T value, Class<T> clazz) {
+    public <T> JPropertyWriter write(String key, T value, Class<T> clazz) {
         checkKey(key);
         ObjectWrapper<T> objectWrapper = new ObjectWrapper<>(Optional.empty(), clazz);
-        return writer.writeProperty(key, objectWrapper.convertToString(value));
+        CoreWriter.create(propertyFile.getPath()).writeProperty(key, objectWrapper.convertToString(value));
+        return this;
     }
 
-    public boolean write(Map<String, String> keyValues) {
+    public JPropertyWriter write(Map<String, String> keyValues) {
         keyValues.keySet().stream().forEach(this::checkKey);
-        return writer.writeProperty(keyValues);
+        CoreWriter.create(propertyFile.getPath()).writeProperty(keyValues);
+        return this;
     }
 
-    public boolean delete(String key) {
+    public JPropertyWriter delete(String key) {
         checkKey(key);
-        return writer.deleteProperty(key);
+        CoreWriter.create(propertyFile.getPath()).deleteProperty(key);
+        return this;
     }
 
     private void checkKey(String key) {
         if (key == null || key.trim().isEmpty()) {
             throw new IllegalArgumentException("Key is not allowed to be null!");
         }
-    }
-
-    public void close() {
-        writer.close();
     }
 }

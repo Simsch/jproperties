@@ -8,9 +8,6 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
 /**
  * @author simsch
  */
@@ -37,8 +34,7 @@ public class CoreWriterIntegrationTest {
     @Test
     public void testGetValue_ValidKey() throws Exception {
         CoreWriter writer = CoreWriter.create(Constants.getPropertiesFile());
-        boolean isSuccess = writer.writeProperty("intValue", "1234");
-        assertThat(isSuccess, is(true));
+        writer.writeProperty("intValue", "1234");
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -59,8 +55,7 @@ public class CoreWriterIntegrationTest {
         Map<String, String> map = new HashMap<>();
         map.put("intValue", "123");
         map.put("doubleValue", "123.45");
-        boolean isSuccess = writer.writeProperty(map);
-        assertThat(isSuccess, is(true));
+        writer.writeProperty(map);
     }
 
     @Test
@@ -68,7 +63,6 @@ public class CoreWriterIntegrationTest {
         CoreWriter writerMockData = CoreWriter.create(Constants.getPropertiesFile());
         writerMockData.writeProperty("intValue", "1234");
         CoreWriter writer = CoreWriter.create(Constants.getPropertiesFile());
-        boolean isSuccess = writer.deleteProperty("intValue");
-        assertThat(isSuccess, is(true));
+        writer.deleteProperty("intValue");
     }
 }

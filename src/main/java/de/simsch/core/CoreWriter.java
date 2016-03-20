@@ -38,55 +38,51 @@ public class CoreWriter {
         return writer;
     }
 
-    public boolean writeProperty(Map<String, String> keyValues) {
-        boolean isSuccess = false;
+    public void writeProperty(Map<String, String> keyValues) {
         try {
             for (Map.Entry<String, String> entry : keyValues.entrySet()) {
                 properties.setProperty(entry.getKey(), entry.getValue());
             }
-            isSuccess = store();
+            store();
+            close();
         } catch (IOException e) {
             LOG.log(Level.WARNING, "Could not write map to file", e);
         } catch (NullPointerException e) {
             throw new IllegalArgumentException("Given map is null!");
         }
-        return isSuccess;
     }
 
-    public boolean writeProperty(String key, String value) {
-        boolean isSuccess = false;
+    public void writeProperty(String key, String value) {
         try {
             properties.setProperty(key, value);
-            isSuccess = store();
+            store();
+            close();
         } catch (IOException e) {
             LOG.log(Level.WARNING, "Could not write value " + value + " for key " + key, e);
         } catch (NullPointerException e) {
             throw new IllegalArgumentException(String.format("Given key (%1s) or value (%2s) is null!", key, value));
         }
-        return isSuccess;
     }
 
-    public boolean deleteProperty(String key) {
-        boolean isSuccess = false;
+    public void deleteProperty(String key) {
         try {
             properties.remove(key);
-            isSuccess = store();
+            store();
+            close();
         } catch (IOException e) {
             LOG.log(Level.WARNING, "Could not delete value for key " + key, e);
         }
-        return isSuccess;
     }
 
-    public void close() {
+    private void store() throws IOException {
+        properties.store(fileWriter, null);
+    }
+
+    private void close() {
         try {
             fileWriter.close();
         } catch (IOException e) {
             LOG.log(Level.INFO, "Could not close file reader. This could cause memory leaks!", e);
         }
-    }
-
-    private boolean store() throws IOException {
-        properties.store(fileWriter, "");
-        return true;
     }
 }

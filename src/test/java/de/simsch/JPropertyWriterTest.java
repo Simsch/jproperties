@@ -6,10 +6,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Simon Schober <simon.schober@live.com>
@@ -36,8 +36,12 @@ public class JPropertyWriterTest {
 
     @Test
     public void testWrite_ValidParameter() throws Exception {
-        boolean isSuccess = writer.write("intKey", "123");
-        assertThat(isSuccess, is(true));
+        writer.write("intKey", "123");
+        Integer result = JPropertyReader
+                .create(PropertyFile.createExternal(Constants.getPropertiesFileForWriting()))
+                .readInteger("intKey")
+                .get();
+        assertThat(result, is(123));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -52,14 +56,23 @@ public class JPropertyWriterTest {
 
     @Test
     public void testWrite_ValidDateTimeParameter() throws Exception {
-        boolean isSuccess = writer.write("dateKey", LocalDateTime.now());
-        assertThat(isSuccess, is(true));
+        LocalDateTime data = LocalDateTime.now();
+        writer.write("dateKey", data);
+        LocalDateTime result = JPropertyReader
+                .create(PropertyFile.createExternal(Constants.getPropertiesFileForWriting()))
+                .readDate("dateKey")
+                .get();
+        assertThat(result, equalTo(data));
     }
 
     @Test
     public void testWrite_ValidObjectParameter() throws Exception {
-        boolean isSuccess = writer.write("objectKey", new TestObject(), TestObject.class);
-        assertThat(isSuccess, is(true));
+        writer.write("objectKey", new TestObject(), TestObject.class);
+        TestObject result = JPropertyReader
+                .create(PropertyFile.createExternal(Constants.getPropertiesFileForWriting()))
+                .readObject("objectKey", TestObject.class)
+                .get();
+        assertThat(result, equalTo(new TestObject()));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -69,20 +82,29 @@ public class JPropertyWriterTest {
 
     @Test
     public void testWrite_NullClassParameter() throws Exception {
-        boolean isSuccess = writer.write("objectKey", new TestObject(), null);
-        assertThat(isSuccess, is(true));
+        writer.write("objectKey", new TestObject(), null);
+        TestObject result = JPropertyReader
+                .create(PropertyFile.createExternal(Constants.getPropertiesFileForWriting()))
+                .readObject("objectKey", TestObject.class)
+                .get();
+        assertThat(result, is(new TestObject()));
     }
 
     @Test
     public void testDelete_EntryPresent() throws Exception {
-        writer.write("dateKey", LocalDateTime.now());
-        boolean isSuccess = writer.delete("dateKey");
-        assertThat(isSuccess, is(true));
+        writer.write("dateKey", LocalDateTime.now()).delete("dateKey");
+        Optional<LocalDateTime> result = JPropertyReader
+                .create(PropertyFile.createExternal(Constants.getPropertiesFileForWriting()))
+                .readDate("dateKey");
+        assertThat(result.isPresent(), is(false));
     }
 
     @Test
     public void testDelete_EntryNotPresent() throws Exception {
-        boolean isSuccess = writer.delete("objectKey");
-        assertThat(isSuccess, is(true));
+        writer.delete("objectKey");
+        Optional<LocalDateTime> result = JPropertyReader
+                .create(PropertyFile.createExternal(Constants.getPropertiesFileForWriting()))
+                .readObject("dateKey", LocalDateTime.class);
+        assertThat(result.isPresent(), is(false));
     }
 }
