@@ -49,7 +49,12 @@ public class JPropertyReader {
         return new DateWrapper(read(key)).parse();
     }
 
+    public <T> Optional<T> readObject(String key, Class<T> clazz) {
+        return new ObjectWrapper<>(read(key), clazz).parse();
+    }
+
     private Optional<String> read(String key) {
         return coreReader.getValue(key);
     }
+
 }
